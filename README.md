@@ -21,65 +21,51 @@ We are sometimes presented with more complex questions that take a specialist to
 - What are the effects of population bottlenecks like the evolutionary pre-Out of Africa bottleneck or the biblical [Flood bottleneck](https://creation.com/genetic-effects-of-the-flood)?
 - Can we explain long-term survival of long-lived species with small populations (e.g., Sanford’s [‘Genetic Entropy’](https://creation.com/mendels-accountant-review))?
 
-To address these questions, and potentially many more, this flexible, open-source population modeling software was created. To make it as accessible to as many people as possible, it is written in the popular programming language Python.
-
-The program comes in two parts: a simple graphical user interface (GUI) that allows for the input of various control parameters, and the main population modeling program. Besides displaying selected data onscreen during the run, all data are saved to a results file. An advanced user will find that it is possible to run the software without the GUI, with modifications, allowing for easy automation.
+To address these questions, and potentially many more, this flexible, open-source population modeling software was created. To make it as accessible to as many people as possible, it is written in the popular programming language Go. Older versions of this software were coded in Perl, C, and Python, but Go was chosen for its speed, flexibility, ease of modification, readability, and ease of incorporating HTML.
 
 # Features
 
-The program can be used to model populations of any size (up to the limits of computer memory) with a large range of possible parameters. The program was designed to reproduce the features of [_Mendel’s Accountant_](https://creation.com/mendels-accountant-review), but with overlapping lifespans instead of _Mendel’s_ discrete generations. Thus, smaller populations can be more easily modeled. Two different selection protocols are featured: **birth selection** (whereby the average mutation load of the parents affects how many children they have) or **annual selection** (whereby the survival of all individuals in the population is according to a modern actuarial table). Mutation rates, average mutation effects, etc., are controlled by the user.
+The program can be used to model populations of any size (up to the limits of computer memory) with a large range of possible parameters. The program was designed to reproduce the features of [_Mendel’s Accountant_](https://creation.com/mendels-accountant-review), but the default module uses  overlapping lifespans, instead of _Mendel’s_ discrete generations. Thus, smaller populations can be more easily modeled.
 
-One can run models with no mutation effects, so simple population growth experiments are easy to deploy. It is also possible to track the genetic and genealogical contribution of an individual or individuals introduced into the population at any time. The ‘seed’ individual is assigned a digital genome with all bits set to ‘1’. As the generations progress, any individual descended from the seed inherits sections of that person’s digital DNA. A simple recombination model with one recombination per chromosome arm per generation is applied. One can track the genetic and genealogical descendants of the seed individual(s), the number and average size of recombination blocks, the number of ‘seed’ centromeres remaining in the population, etc. One could also combine mutation with population growth while tracking the descendants of an Adam and an Eve. More advanced users can now answer questions like the maximum number and strength of mutations that a human-like species can withstand, or how much migration between populations is required to completely homogenize them.
+Future modules may include discrete generations (e.g., many plants species) or self-feetlization (e.g., pea plants). Different styles of selection (e.g., birth, annual, probabilty) can also be added. Mutation rates, average mutation effects, etc., are controlled by the user.
 
-The software was designed to be flexible and modifiable. New parameters, subroutines, models, and data calculations can be added easily.
+One can run models with no mutation effects, so simple population growth experiments are easy to deploy. It is also possible to track the genetic and genealogical contribution of an individual or individuals introduced into the population at any time. ‘Seed’ individual(s) is(are) assigned a digital genome with all bits set to ‘1’. As the generations progress, any individual descended from the seed(s) inherits sections of that person’s digital DNA. A simple recombination model with one recombination per chromosome arm per generation is applied, but this could be modified. One can track the genetic and genealogical descendants of the seed individual(s), the number and average size of recombination blocks, the number of ‘seed’ centromeres remaining in the population, etc. One could also combine mutation with population growth while tracking the descendants of an Adam and an Eve. More advanced users can now answer questions like the maximum number and strength of mutations that a human-like species can withstand, or how much migration between populations is required to completely homogenize them.
+
+The software was designed to be flexible and modifiable. New parameters, subroutines, models, and data calculations can be added easily. In fact, the main program calls six modules, any one of which can be swapped out according to experimental needs: InitializeModel, InitializePop, Birth, Marriage, Death, Save.  
 
 # Requirements
 
-The software runs on Python 3. The GUI requires the Tkinter library. The main program requires the modules os, csv, math, random, numpy, scipy.stats, bitarray, collections, and matplotlib. Check the first few lines of the two programs for the list of dependencies.
+The software is written in the Go programming language. The main program requires Check the first few lines of the main and each module for the list of dependencies. Requirements at present: os, fmt, time, image, image/png, image/color, strings, strconv, math/rand, encoding/csv, and gonum.org/v1/gonum/stat/distuv. In addition, several variable types are defined in drift/types. The modules that need to be included are listed at the beginning of each module and submodule, e.g., "drift/modules/save".
 
 # Installation
 
-To use this software package, Python 3 must be installed on your system. If you don't have Python installed, you can download it from the [official Python website](https://www.python.org/). The required libraries listed above can be installed using standard Python methods (e.g., run `pip install -r requirements.txt` in the command line).
+To use this software package, Go must be installed on your system. [official Go website](https://go.dev/doc/install). The required libraries listed above can be installed using standard  methods (e.g., run `pip install -r requirements.txt` in the command line).
 
-An installation program (e.g., install.bat) is not included, but setup is simple. Unzip the download file into your directory of choice. If, for example, the user unzipped it into the folder C:/Python/DRIFT, two additional folders will be created:
+An installation program (e.g., install.bat) is not included, but setup is simple. Unzip the download file into your directory of choice. If, for example, the user unzipped it into the folder C:/Go/DRIFT, several additional folders will be created:
 
-- c:/python/drift/data
-- c:/python/drift/results
+- c:/Go/drift/modules
+- c:/Go/drift/results
+- c:/Go/drift/static
+- c:/Go/drift/types
 
-These files will be in the main directory:
-
-- driftgui1.py, drift1.py
+This files will appear in the main directory:
+- Drift-0.3.go
 
 These files will be in the Data directory:
-
-- actuarial_table.csv, chromosome_data.csv, example_pop.csv, parameter_defaults.csv, plot_defaults.csv
-- Three additional image files (used in this readme) will also be in the directory.
+- actuarial_table.csv, chromosome_data.csv, parameter_defaults.csv,
 
 The Results directory will be empty.
 
 The file system is relational. Thus, the only thing that matters is that the Results and Data subdirectories exist in the folder that contains the program.
 
-Alternatively, the user might want to work with an environment management system (e.g., Anaconda). Instructions are not included here, but any user with a basic understanding of such things should not have too much trouble with the setup.
-
 # Usage
 
 The method needed to run the program is platform dependent. On a Windows machine, after navigating to the program directory, the command to run the program would be:
 
-     c:\python3.11\programs\drift> python.exe driftgui1.py
-
-This will launch the GUI. This is a simple data entry form in which you can enter the relevant model parameters.
-
-#The GUI
-![The GUI](data/gui.png)
+     c:\Go\drift> go run drift-0.3.go
 
 **Beware:** If you run multiple models with the same ID, the older data will be overwritten.
 **Beware:** Enabling the parameter TrackDead can potentially create very large files. This option is disabled by default. At present, there is no confirmation step when this is enabled.
-
-The GUI has three frames, each with two columns. Within each frame, the population parameters are on the left. The parameters that will be plotted during the model run are on the right (all data are saved, but only some are shown on screen).
-
-The data frames are initialized with the information contained in ParameterDefaults.csv and PlotDefaults.csv. When running many similar models, the user can easily modify the values in those files so that GUI is automatically populated with the desired initial settings. [This also means that the GUI can be skipped entirely, with just a few modifications, by loading the defaults straight into the main program]
-
-The **DNA Parameters and Settings** and **Mutations Parameters and Settings** frames are enabled via the **Track DNA** and **Track Mutations** checkboxes in the **Main Parameters and Settings** frame (on the left). In this example, only the Track Mutations checkbox is checked, so only the Mutations Parameters and Settings frame is enabled.
 
 Enabling Track DNA allows the user to track the DNA and genealogy of a ‘seed’ individual or individuals over time. The seed is added to the population in the year set by the seed year parameter. Currently, the seed is chosen at random. The individual could be male or female and can be of any age. There is no advantage to being the seed (e.g., reduced risk of death or enhanced probability of becoming a parent) and the seed’s descendants are also given no advantages. These are areas that can be easily modified.
 
@@ -89,21 +75,17 @@ Track DNA and Track Mutations use two different engines. Tracking DNA is more me
 
 To save memory, any individual who has zero set bits is deleted from the chromosomes variable.
 
-Tracking mutations is more memory intensive. Any given mutation needs to be assigned both a location and an effect. Instead of tracking all mutations with individual IDs, however, mutation effects are added to the bins **mutations** dictionary. All mutations in any given bin will either propagate or be lost during meiosis and the fitness effect of any given bin is tabulated by simply summing the effects of the mutations contained in that bin. A histogram of all mutation effects that appear during the model run is stored in memory and saved at the end of the run if the **Mutation Histogram** checkbox is enabled.
+Tracking mutations is more memory intensive. Any given mutation needs to be assigned both a location and an effect. Every mutation is assigned an ID, effect, posiiotn, dominance, etc. Each individual carries a list of mutations IDs. All mutations in any given bin will either propagate or be lost during meiosis and the fitness effect of any given bin is tabulated by simply summing the effects of the mutations contained in that bin. A histogram of all mutation effects that appear during the model run is stored in memory and saved at the end of the run if the **Mutation Histogram** is enabled in the parameters file.
 
 Currently, the population age distribution is initialized by sampling from an example population (ExamplePop.csv). The age distribution data were generated by using this program to model a static population of 10,000 individuals for 100,000 years. The ages of living people were sampled at the end of the run and saved. In all model runs, survivorship is dictated by an actuarial table (ActuarialTable.csv) that matches the age distribution of an impoverished country obtained from the WHO:[WHO LIFE TABLE FOR 1999: AFR D](who.int/healthinfo/paper09.pdf).
 
 # The Meiosis algorithm
 
-Meiosis is a critical phase in the life cycle of all sexually reproducing organisms, and so it must be represented accurately in these digital organisms. In the current configuration, a random recombination location is chosen for each chromosome arm during the meiosis loop. One of the two chromosome copies is chosen at random and a mask is then generated for the entire genome. For each chromosome, the bits in the mask are then set, either at the center (e.g., from the first recombination point, through the centromere, to the second recombination point) or at the ends, depending on which centromere is chosen. The mask is then applied to the first copy of the individual’s genome with an AND (&) comparison. The inverse (~mask) is applied to the second copy with a second AND comparison. Both copies are then combined with an OR comparison:
+Meiosis is a critical phase in the life cycle of all sexually reproducing organisms, and so it must be represented accurately in these digital organisms. In the current configuration, a random recombination location is chosen for each chromosome arm during the meiosis loop. One of the two chromosome copies is chosen at random and a mask is then generated for the entire genome. For each chromosome, the bits in the mask are then set, either at the center (e.g., from the first recombination point, through the centromere, to the second recombination point) or at the ends, depending on which centromere is chosen. The mask is then applied to the first copy of the individual’s genome with an AND (&) comparison. The inverse (~mask) is applied to the second copy with a second AND comparison. Both copies are then combined with an OR (|) comparison:
 
      child_copy = (mask & parent_copy_A) | (~mask & parent_copy_B)
 
-This will be the copy of the genome that the child inherits from one parent. The process is simply repeated for the second parent to generate the diploid genome. Here is a visual representation of the process:
-
-![Digital Meiosis](data/meiosis.png)
-
-For any given chromosome (dark blue), random locations (red Xs) are selected to the right and left of the centromere (black circle). One centromere copy is then randomly chosen to be inherited. By setting the bits in the mask appropriately, a simple combination of AND, OR, and NOT results in a bitstring that can be inherited by a child from one parent. The two parental copies are color coded to help visualize the process of inheritance.
+This will be the copy of the genome that the child inherits from one parent. The process is simply repeated for the second parent to generate the diploid genome.
 
 Meiosis is used when either Track DNA or Track Mutations are enabled.
 
@@ -134,52 +116,11 @@ Meiosis is used when either Track DNA or Track Mutations are enabled.
 - Max Breeding Inds: This sets the maximum number of adult males and adult non-menopausal females in the population. Excess people will be randomly culled (including children) until this limit is not exceeded. Max Breeding Inds can also be applied to bottlenecks.
 - Random Mating: Individuals are assigned a random location within a circle with radius = 0.5 units during the setup loop. Currently, when children are born, they are assigned the latitude and longitude of their father. Two individuals cannot marry if they are located > Random Mating units apart. Set this to ‘1’ for truly random mating.
 - Run Model: This will launch the main program. The button will turn red during program execution and return to green when it is finished.
-
-## These are the plot parameters for this frame:
-
-- N: The population size at the save year.
-- Marriages: The number of marriages that have transpired between save intervals.
-- Births: The number of children born into the population between save intervals.
-- Random Deaths: The number of random deaths that happened between save intervals.
-- Culled Deaths: The number of excess people who had to be killed off between save intervals to keep the population in check (either below the max pop size or below the growth threshold).
-- Max ID: Each individual is given a unique identifier. This will show how many people were born into the population regardless of population size.
-
-Upon execution, the program will create a graph window and plot the variables that were checked in the Plot columns of the GUI. The graphing feature is primitive. You will not see small values when attempting to plot large and small values on the same graph. To help, variables that are on a percent scale will be shown on the secondary y-axis. The graph will be updated at the end of each Save Interval.
-
-When the model run is completed, assuming the population has not gone extinct, the program will halt execution until the plot window has been closed. This allows the user to modify the view and/or save the plot. If Num Runs > 1 (specified in the GUI), the model will restart from the beginning. This will be repeated Num Runs times.
-
-# DNA Parameters and Settings Frame
-
-## User-defined input parameters:
-
 - Seed Year: The year in which the individual(s) whose DNA is to be tracked is introduced.
 - Multiplier: To allow for finer recombination, use this to increase the size of the genome. The default size is 3,108 bits, which corresponds to the length of the human genome divided by one million. Chromosome arms range from 153 to 13 bits. This is read from a data file that can easily be modified by the user. Each bit corresponds to one recombination block. More than one mutation can exist in any given recombination block. At present, all mutation effects are additive.
 - Initial Heterozygosity: This will set the bits in one copy of each individual’s digital genome to ‘1’, probabilistically, according to the value in this box. If Initial Heterozygosity = 1, every bit in one copy of each individual’s genome will be set. If Initial Heterozygosity = 0.5, one half of the bits in one copy will be set, randomly. Etc.
 - Genome Map: This will save a .png file that includes a map of the genome at the top. This is followed by the genomic data for each individual, two lines each.
 - All Genome Maps: This will save a unique genome map at each save interval.
-
-![genome Map](data/genome_map.png)
-
-An example genome map: This is the top-left portion only. Chromosomes are denoted along the top. Green = telomeres. Blue = centromeres. White = individual chromosome arms. Here, a seed individual was introduced at year 0 and his/her DNA was allowed to mix into the population as meiosis broke the seed DNA into smaller and smaller fragments (red).
-
-## Plot parameters:
-
-- Y Descends: The current number of Y chromosome descendants from the seed(s).
-- mt Descends: The current number of mitochondrial descendants from the seed(s).
-- Geneal Descends: The current number of genealogical descendants from the seed(s).
-- Genetic Descends: The current number of people who carry DNA from the seed(s).
-- Num Centromeres: The current number of seed centromeres circulating in the population.
-- Num Blocks: The number of chromosomal blocks from the seed(s) currently in circulation.
-- Av Block Size: The average size (in bits) of circulating genomic blocks.
-- SD Block Size: Standard deviation of Av Block Size.
-- % Seed Genome: The percentage of the seed genome(s) still in circulation.
-- Av Seed Genome Coverage: The average number of times a seed genome bit is found.
-- Av Heterozygosity: The average population-wide heterozygosity of seed genome bits.
-
-# Mutations Parameters and Settings Frame
-
-## User-defined input parameters:
-
 - Mu: The mutation rate.
 - F(neutral): The proportion of all mutations that are truly neutral.
 - F(beneficial): Of the non-neutral mutations, the proportion that are beneficial. For example, if F(neutral) = 0.5 and F(beneficial) = 0.5, beneficial mutations will appear 25% of the time.
@@ -192,53 +133,34 @@ An example genome map: This is the top-left portion only. Chromosomes are denote
   - Annual: Any given individual has a risk of dying each year. The risk is given in an actuarial table loaded at the beginning of the run. When this form of selection is enabled, the risk of dying is increased by the sum of the mutation effects carried by the individual. This is the default setting.
   - Birth: Averages the parent’s mutation burden and subtracts this from birth_probability in the main program. This effectively reduces the chances of high-mutation-burden couples from having children. This is most similar to the way selection is handled in Mendel’s Accountant.
 
-## Plot parameters:
-
-- Av Individual Fitness: The average fitness of all individuals in the populations. Fitness is additive: a simple sum of all mutation effects carried by the individual.
-- Av Bin Fitness: The average fitness per bin across the population.
-- Num Mutations: The total number of mutations in circulation.
-- Av Mutations Per Ind: The average number of mutations carried by each individual.
-- Av Mutations Per Bin: The average number of mutations per bin across the population.
-
 # Program guts
 
-These are the main variables used during a model run:
-
-- The parameter settings in the GUI are saved in a dictionary called Model.
-- IndData is a dictionary that contains life history data for each individual.
-- free_params is a dictionary that is used to track variables that can change during the run (e.g., numinds and max_ID).
-- chromosomes is a dictionary that contains two bitarrays per individual, each numbits long. It will stay blank if Track DNA is not selected. To reduce memory, individuals with zero set bits are deleted from chromosomes. numbits is calculated from the data file ‘chromosome data.csv’ (currently 3046 bits).
-- mutations will stay blank if track mutations is not selected. Otherwise, it will be populated with 2 lists per individual, where each item in the list is, in turn, a list of the mutation effects they carry at each position.
-- mutation_hist is a list of mutations effect sizes and the number of times they have appeared during the model run. This is only populated if Mutation Histogram is selected.
-- dead_dict will stay blank if Track Dead is not selected. Otherwise, it will keep track of deceased individuals. It is cleared out every save interval.
-- tracking keeps up with the sums of a few important parameters that accumulate between save intervals.
+These are three main variables used during a model run:
+     model, pop, and mutations
+These are custom variables defined in the types file.
+- pop.IndData contains life history data for each individual.
+- model.FreeParameters is used to track variables that can change during the run (e.g., numinds or max_ID).
+- pop.Chromosomes contains two bitarrays per individual, each numbits long. It will stay blank if Track DNA is not selected. To reduce memory,the chromosomes of individuals with zero set bits are deleted. numbits is calculated from the data file ‘chromosome data.csv’ (currently 3046 bits).
+- pop.Mutations will stay blank if track mutations is not selected. Otherwise, it will be populated with 2 lists per individual, where each item in the list is, in turn, a list of the mutation IDs they carry at each position.
 
 # Program execution
 
 This is order of operations each model year:
 
-1. Inoculate the population with the seed individuals(s) if year = model[‘inoculation_year’].
-2. Make a list of women who are ready to give birth.
-3. Births, meiosis, inherit old mutations, add new mutations.
-4. List men and women available for marriage.
-5. Arrange marriages (newlyweds will be ready to have a baby the following year).
-6. Remove people from the population, first according to the actuarial table, then random culling.
-7. Save data at specified intervals.
+1. Inoculate the population with the seed individuals(s) if year = model.Parameters["inoculation_year"].
+2. Birth
+3. Marriage
+4. Death
+8. Save data at specified intervals.
 
 # Example usage
 
-1. The user wants to run a simple population growth model. They choose a Model ID, set Start Pop Size to 100, and set Max Pop Size to 10,000. They leave everything else at default and hit Run Model. The population size at each save year will be graphed on screen.
-2. The user wants to assess the effects of a population bottleneck. They set the Start Pop Size to 10,000, the Bottleneck Start to year 100, and the Bottleneck End to year 800. They click the Track DNA checkbox and check Av Heterozygosity in the Plot Variable column before clicking Run Model.
-3. The user wishes to know the largest average mutation effect that can be tolerated in a small population. They start by setting Start Pop Size and Max Pop Size to 200. After clicking the Track Mutations checkbox, they set Mu to 100, f(Neutral) to 0.5, and they check the Mutation Histogram checkbox. In the Plot columns, they also select a few variables that they wish to track during the model run. After running the model, they adjust the mutation parameters to force the population to survive long-term, changing the Model ID each time. Finally, they open the saved data files in a spreadsheet and graph their results.
+1. The user wants to run a simple population growth model. In the parameters file, they choose a Model ID, set Start Pop Size to 100, and set Max Pop Size to 10,000. They leave everything else at default ad run the model from the command line.
+2. The user wants to assess the effects of a population bottleneck. They set the Start Pop Size to 10,000, the Bottleneck Start to year 100, and the Bottleneck End to year 800.
+3. The user wishes to know the largest average mutation effect that can be tolerated in a small population. They start by setting Start Pop Size and Max Pop Size to 200. After enablig Track Mutations, they set Mu to 100, f(Neutral) to 0.5, and they enable  Mutation Histogram. After running the model, they adjust the mutation parameters to force the population to survive long-term, changing the Model ID each time. Finally, they open the saved data files in a spreadsheet and graph their results.
 
 # Adding new features
-
-Adding parameters to the GUI is simple. All one has to do is add an item to either Parameter Defaults.csv or Plot Defaults.csv then direct the main program to take appropriate action. For example: the user wants the speed and efficiency of the DNA tracking algorithm without the overhead of the mutation algorithm. As long as all mutations have the same effect (whatever that might be), it should be possible to do this. So, the user adds a line to Parameter Defaults.csv:
-
-parameter         label             type     value_format   default  group
-Use_DNA_engine    Use DNA Engine    Check    bool           0        Mutation
-
-Now, when the program launches, a checkbox labeled Use DNA Engine will appear in the Mutation Parameters and Settings frame. The checkbox default setting is 0 (unchecked) and the setting will be accessible in the main program under model[‘Use_DNA’]. All one has to do is capture that setting at the appropriate place in the program (e.g., if model[‘Use_DNA’]: ) and redirect program execution to a new feature or a new subroutine.
+New parameters can easily be added to the file. New modules can be swapped out with the originals also.
 
 # Contributing
 
@@ -269,7 +191,7 @@ Our team will review your pull request, provide feedback, and work with you to i
 
 # Coding Guidelines
 
-To maintain a consistent and readable codebase, please follow standard Python coding practices and make sure to add explanatory comments wherever practical. By contributing to this software, you become a valuable part of the project's community. We appreciate your efforts and look forward to collaborating with you!
+To maintain a consistent and readable codebase, please follow standard 'Golang' coding practices and make sure to add explanatory comments wherever practical. By contributing to this software, you become a valuable part of the project's community. We appreciate your efforts and look forward to collaborating with you!
 
 If you have any questions or need assistance, feel free to reach out to us through the issue tracker or contact us via email.
 
@@ -306,13 +228,38 @@ This software is free to use. Parties that would like to make a donation in way 
 
 # Roadmap
 
-In the future, the ability to save and load models mid-run is greatly desired. This will allow the usage of standardized models across experiments, forking of events, repeating experiments, and allowing for ‘burn in’ time when looking, for example, at mutational accumulation and drift in large populations over long periods of time.
+1.	GUI:
+     a.	GO works well with HTML.
+     b.	Launch models from the GUI, allowing users to adjust variables.
+     c.	Save variable presets under user-defined model names.
+     d.	Add graphing and real-time analysis.
+  	e.   Add the ability to save mid-run and launch models from save points.
+3.	Optimization
+     a.	Parallelization/threading
+     b.	Cloud computing
+     c.	Algorithmic tweaking
+4.	Alternate scenarios:
+     a.	Develop a system that allows the user to select among several scenarios (e.g., humans or pea plants).
+     b.	The defaults for each scenario will be different.
+     c.	A different web form could be developed for each.
+5.	New modules:
+     a.	The four-alleles test. The challenge has been issued. We can address it.
+     b.	ARGWeaver: a more sophisticated four-alleles test using MCMC
+     c.	Geography. Mating and migration depend on preloaded maps.
+6.	New studies:
+     a.	Develop a standard population
+     b.	The Genealogical Adam and Eve
+     c.	Out of Africa
+     d.	Super bottleneck 1MA
+     e.	Neanderthals
+     f.	Flood/Babel
+     g.	Quantifying the effects of natural selection
+     h.	Validate Mendel’s Accountant
+     i.	Test Jeanson’s ideas about Native American Y chromosome replacement
+  	j.   Tribes
+7.	Classwork
+     a.	With the right GUI and the right module presets and real-time graphs, many possible classroom activities and student projects are possible.
 
-Currently, the software only runs on a local computer. Parallelization and/or cloud computing would enable the modeling of much larger populations and for longer model time.
-
-It should also be easy to implement tribes and to control migration among the tribes. Currently, all individuals are assigned an x-y position within a unit circle centered on (0,0). The locations are stored in IndData[ind][‘lat’] and IndData[ind][‘lon’]. These positions naturally fall within one of four quadrants. Thus, dividing the population into two or four tribes is just a matter of controlling who can mate with whom across the quadrant boundaries.
-
-Further memory optimization will be achieved by using cython for some of the variables.
 
 # How to Cite
 
