@@ -18,12 +18,14 @@ func InitializeModel() *types.Model{
 		DeathRisk:      make(map[int]float64),
 		CumulativeProb: make(map[int]float64),
 		FreeParameters: make(map[string]int),
+		Map:            make(map[int]map[int]int),
 	}
 
 	// Load files
 	paramloader.LoadParameters(model)
 	chromosomeloader.LoadChromosomeArmsFromCSV(model)
-   actuarialloader.LoadActuarialTable(model)
+        actuarialloader.LoadActuarialTable(model)
+	maploader.LoadMap(model)
 
 	// Calculate derived values
 	model.ModelName = getModelName(model.Parameters)
