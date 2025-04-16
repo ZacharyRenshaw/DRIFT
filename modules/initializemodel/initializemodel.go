@@ -12,46 +12,45 @@ import (
 )
 
 func InitializeModel() *types.Model{
-	model := &types.Model{
-		Parameters:     make(map[string]float64),
-		PlotFlags:      make(map[string]bool),
-		ChromosomeArms: make(map[int]map[int][]int),
-		DeathRisk:      make(map[int]float64),
-		CumulativeProb: make(map[int]float64),
-		FreeParameters: make(map[string]int),
-		Map:            make(map[int]map[int]int),
-	}
+    model := &types.Model{
+        Parameters:     make(map[string]float64),
+	PlotFlags:      make(map[string]bool),
+	ChromosomeArms: make(map[int]map[int][]int),
+	DeathRisk:      make(map[int]float64),
+	CumulativeProb: make(map[int]float64),
+	FreeParameters: make(map[string]int),
+	Map:            make(map[int]map[int]int),
+    }
 
-	// Load files
-	paramloader.LoadParameters(model)
-	chromosomeloader.LoadChromosomeArmsFromCSV(model)
-        actuarialloader.LoadActuarialTable(model)
-	maploader.LoadMap(model)
+    // Load files
+    paramloader.LoadParameters(model)
+    chromosomeloader.LoadChromosomeArmsFromCSV(model)
+    actuarialloader.LoadActuarialTable(model)
+    maploader.LoadMap(model)
 
-	// Calculate derived values
-	model.ModelName = getModelName(model.Parameters)
-	model.Parameters["mu_sig_figs"] = math.Pow(1, model.Parameters["mu_sig_figs"])
+    // Calculate derived values
+    model.ModelName = getModelName(model.Parameters)
+    model.Parameters["mu_sig_figs"] = math.Pow(1, model.Parameters["mu_sig_figs"])
 
-	// Prepare output files
-   save.SaveHeaders(model.ModelName)
+    // Prepare output files
+    save.SaveHeaders(model.ModelName)
 
-	// Initialize free parameters
-	model.FreeParameters["indID"] = 0         // Starting ID for individuals
-	model.FreeParameters["seed"] = -1         // No seed initially
-	model.FreeParameters["last_pop_size"] = 0 // Required for growth rate calculations
-	model.FreeParameters["mutID"] = 0         // Starting ID for mutations
+    // Initialize free parameters
+    model.FreeParameters["indID"] = 0         // Starting ID for individuals
+    model.FreeParameters["seed"] = -1         // No seed initially
+    model.FreeParameters["last_pop_size"] = 0 // Required for growth rate calculations
+    model.FreeParameters["mutID"] = 0         // Starting ID for mutations
 
-   //PrintModel(model)                       // For doublechecking purposes
+    //PrintModel(model)                       // For doublechecking purposes
 
-   return model
-
+    return model
 }
 
 func getModelName(params map[string]float64) string {
-	if id, ok := params["model_id"]; ok {
-		return fmt.Sprintf("model%.0f", id)
-	}
-	return "default_model"
+    if id, ok := params["model_id"]; ok {
+	return fmt.Sprintf("model%.0f", id)
+    }
+    return "default_model"
 }
 
 func PrintModel(model *types.Model) {
