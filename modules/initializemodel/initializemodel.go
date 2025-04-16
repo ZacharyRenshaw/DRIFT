@@ -5,6 +5,7 @@ import (
 	"math"
 	"drift/types"
 	"drift/modules/save"
+	"drift/modules/maploader"
 	"drift/modules/paramloader"
 	"drift/modules/actuarialloader"
 	"drift/modules/chromosomeloader"
