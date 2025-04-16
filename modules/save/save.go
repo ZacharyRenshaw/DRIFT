@@ -1,14 +1,14 @@
 package save
 
 import (
-	"os"
-	"fmt"
-	"image"
-	"strings"
-	"image/png"
-   "drift/types"
-	"image/color"
-	"encoding/csv"
+    "os"
+    "fmt"
+    "image"
+    "strings"
+    "image/png"
+    "drift/types"
+    "image/color"
+    "encoding/csv"
 )
 
 // SaveHeaders creates a CSV file with the headers for the results
