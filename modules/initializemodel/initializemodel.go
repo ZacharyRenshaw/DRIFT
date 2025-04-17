@@ -1,64 +1,57 @@
 package initializemodel
 
 import (
-	"fmt"
-	"math"
-	"drift/types"
-	"drift/modules/save"
-	"drift/modules/maploader"
-	"drift/modules/paramloader"
 	"drift/modules/actuarialloader"
 	"drift/modules/chromosomeloader"
+	"drift/modules/maploader"
+	"drift/modules/paramloader"
+	"drift/modules/save"
+	"drift/types"
+	"fmt"
+	"math"
 )
 
-func InitializeModel() *types.Model{
-    model := &types.Model{
-        Parameters:     make(map[string]float64),
-	PlotFlags:      make(map[string]bool),
-	ChromosomeArms: make(map[int]map[int][]int),
-	DeathRisk:      make(map[int]float64),
-	CumulativeProb: make(map[int]float64),
-	FreeParameters: make(map[string]int),
-	Map:            make(map[int]map[int]int),
-    }
+func InitializeModel() *types.Model {
+	model := &types.Model{
+		Parameters:     make(map[string]float64),
+		PlotFlags:      make(map[string]bool),
+		ChromosomeArms: make(map[int]map[int][]int),
+		DeathRisk:      make(map[int]float64),
+		CumulativeProb: make(map[int]float64),
+		FreeParameters: make(map[string]int),
+		Map:            make(map[int]map[int]int),
+	}
 
-    // Load files
-    paramloader.LoadParameters(model)
-    chromosomeloader.LoadChromosomeArmsFromCSV(model)
-    actuarialloader.LoadActuarialTable(model)
-    maploader.LoadMap(model)
+	// Load files
+	paramloader.LoadParameters(model)
 
-    // Calculate derived values
-    model.ModelName = getModelName(model.Parameters)
-    model.Parameters["mu_sig_figs"] = math.Pow(1, model.Parameters["mu_sig_figs"])
+	chromosomeloader.LoadChromosomeArmsFromCSV(model)
+	actuarialloader.LoadActuarialTable(model)
+	maploader.LoadMap(model)
 
-    // Prepare output files
-    save.SaveHeaders(model.ModelName)
+	// Calculate derived values
+	model.Parameters["mu_sig_figs"] = math.Pow(1, model.Parameters["mu_sig_figs"])
 
-    // Initialize free parameters
-    model.FreeParameters["indID"] = 0         // Starting ID for individuals
-    model.FreeParameters["seed"] = -1         // No seed initially
-    model.FreeParameters["last_pop_size"] = 0 // Required for growth rate calculations
-    model.FreeParameters["mutID"] = 0         // Starting ID for mutations
+	// Prepare output files
+	save.SaveHeaders(model.ModelName)
 
-    //PrintModel(model)                       // For doublechecking purposes
+	// Initialize free parameters
+	model.FreeParameters["indID"] = 0         // Starting ID for individuals
+	model.FreeParameters["seed"] = -1         // No seed initially
+	model.FreeParameters["last_pop_size"] = 0 // Required for growth rate calculations
+	model.FreeParameters["mutID"] = 0         // Starting ID for mutations
 
-    return model
-}
+	//PrintModel(model)                       // For doublechecking purposes
 
-func getModelName(params map[string]float64) string {
-    if id, ok := params["model_id"]; ok {
-	return fmt.Sprintf("model%.0f", id)
-    }
-    return "default_model"
+	return model
 }
 
 func PrintModel(model *types.Model) {
-    fmt.Println("Model Name:", model.ModelName)
-    fmt.Println("Parameters:", model.Parameters)
-    fmt.Println("Free Parameters:", model.FreeParameters)
-    fmt.Println("Plot Flags:", model.PlotFlags)
-    fmt.Println("Chromosome Arms:", model.ChromosomeArms)
-    fmt.Println("Death Risk:", model.DeathRisk)
-    fmt.Println("Cumulative Probability:", model.CumulativeProb)
+	fmt.Println("Model Name:", model.ModelName)
+	fmt.Println("Parameters:", model.Parameters)
+	fmt.Println("Free Parameters:", model.FreeParameters)
+	fmt.Println("Plot Flags:", model.PlotFlags)
+	fmt.Println("Chromosome Arms:", model.ChromosomeArms)
+	fmt.Println("Death Risk:", model.DeathRisk)
+	fmt.Println("Cumulative Probability:", model.CumulativeProb)
 }

@@ -1,59 +1,85 @@
 package maploader
 
 import (
-	"os"
-	"strconv"
 	"drift/types"
 	"encoding/csv"
+	"fmt"
+	"os"
+	"strconv"
 )
 
-func LoadMap(model *types.Model){
+func LoadMap(model *types.Model) {
+	minLat, minLon, maxLat, maxLon := 0, 0, 0, 0
 
-	if m.Map == nil {
-		m.Map = make(map[int]map[int]int)
+	if model.Map == nil {
+		model.Map = make(map[int]map[int]int)
 	}
 
-	file, err := os.Open("C:/Go/Programs/Drift/modules/", model.Parameters["map"], ".csv")
-	if err != nil {}
+	filename := fmt.Sprintf("modules/maploader/%s_map.csv", model.MapName)
+	file, err := os.Open(filename)
+	if err != nil {
+		print("Cannot open ", filename)
+	}
 	defer file.Close()
 
-    // land = 1
-    // coastal water = 2
-    // open water = 3
-    // high mountain = 4
-    // desert = 5
-    // ice = 6
-
 	reader := csv.NewReader(file)
-
-   // Read header row
-	header, err := reader.Read()
+	records, err := reader.ReadAll()
 	if err != nil {
-		return fmt.Errorf("failed to read CSV header: %v", err)
+		print("Error reading map file")
+		return
 	}
 
-   latIdx, lonIdx, terrainTypeIdx := -1, -1, -1
-	for i, column := range header {
-		switch column {
-		case "lat":
-			latIdx = i
-		case "lon":
-			lonIdx = i
-		case "terrain_type":
-			terrainTypeIdx = i
-		}
-	}
+	// land = 1
+	// coastal water = 2
+	// open water = 3
+	// high mountain = 4
+	// desert = 5
+	// ice = 6
 
-	// Ensure all required columns were found
-	if latIdx == -1 || lonIdx == -1 || terrainTypeIdx == -1 {
-		return fmt.Errorf("CSV is missing required columns")
-	}
+	for _, record := range records[1:] {
 
-	// Read data rows
-	for {
-		record, err := reader.Read()
+		lat, err := strconv.Atoi(record[0])
 		if err != nil {
-			break // End of file or error
+			print("error reading map data at ", record)
+		}
+		if lat < minLat {
+			minLat = lat
+		}
+		if lat > maxLat {
+			maxLat = lat
+		}
+
+		lon, err := strconv.Atoi(record[1])
+		if err != nil {
+			print("error reading map data at ", record)
+		}
+		if lon < minLon {
+			minLon = lon
+		}
+		if lon > maxLon {
+			maxLon = lon
+		}
+
+		terrain, err := strconv.Atoi(record[2])
+		if err != nil {
+			print("error reading map data at ", record)
+		}
+
+		if model.Map[lat] == nil {
+			model.Map[lat] = make(map[int]int)
+		}
+		model.Map[lat][lon] = terrain
 	}
+	model.FreeParameters["minLat"] = minLat
+	model.FreeParameters["minLon"] = minLon
+	model.FreeParameters["maxLat"] = maxLat
+	model.FreeParameters["maxLon"] = maxLon
+
+	latRange := maxLat - minLat + 1
+	lonRange := maxLon - minLon + 1
+	width := model.FreeParameters["map_width"]
+	height := model.FreeParameters["map_height"]
+	model.FreeParameters["tileWidth"] = width / lonRange
+	model.FreeParameters["tileHeight"] = height / latRange
 
 }
