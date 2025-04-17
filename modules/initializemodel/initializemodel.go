@@ -24,7 +24,6 @@ func InitializeModel() *types.Model {
 
 	// Load files
 	paramloader.LoadParameters(model)
-
 	chromosomeloader.LoadChromosomeArmsFromCSV(model)
 	actuarialloader.LoadActuarialTable(model)
 	maploader.LoadMap(model)

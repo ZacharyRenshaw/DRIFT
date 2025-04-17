@@ -10,7 +10,7 @@ import (
 
 func LoadParameters(model *types.Model) {
 
-	file, err := os.Open("c:/go/programs/git-drift/static/parameter_defaults.csv")
+	file, err := os.Open("static/parameter_defaults.csv")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return

@@ -9,7 +9,7 @@ import (
 
 func LoadActuarialTable(model *types.Model) {
 
-	file, err := os.Open("C:/Go/Programs/Drift/static/actuarial_table.csv")
+	file, err := os.Open("static/actuarial_table.csv")
 	if err != nil {
 	}
 	defer file.Close()

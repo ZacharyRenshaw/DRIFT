@@ -9,7 +9,7 @@ import (
 
 func LoadChromosomeArmsFromCSV(model *types.Model) {
 
-	file, err := os.Open("C:/Go/Programs/Drift/static/chromosome_data.csv")
+	file, err := os.Open("static/chromosome_data.csv")
 	if err != nil {
 	}
 	defer file.Close()
