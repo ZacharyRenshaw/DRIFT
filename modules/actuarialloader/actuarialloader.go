@@ -1,42 +1,52 @@
 package actuarialloader
 
 import (
+	"drift/modules/csvutils"
 	"drift/types"
-	"encoding/csv"
-	"os"
-	"strconv"
 )
 
-func LoadActuarialTable(model *types.Model) {
+// Name of the CSV file containing the actuarial table.
+const myFileName = "actuarial_table.csv"
 
-	file, err := os.Open("static/actuarial_table.csv")
-	if err != nil {
+// Load the actuarial table from a CSV file and populate the model's DeathRisk and CumulativeProb maps.
+func LoadActuarialTable(model *types.Model, configRoot string) error {
+	// Load the CSV file
+	csvLoader := csvutils.CSVLoader{
+		FileName:   myFileName,
+		Dir:        configRoot,
+		MinRecords: 2,
 	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
-	records, err := reader.ReadAll()
+	records, err := csvLoader.LoadCSV()
 	if err != nil {
+		return err
 	}
 
+	// Skip the header row and process each record
 	var cumulative float64
-
-	for _, row := range records[1:] { // Skip the header row
-
-		age, err := strconv.Atoi(row[0])
+	for _, record := range records[1:] { // Skip the header row
+		// Ensure the record has at least 3 fields
+		err := csvLoader.CheckRecord(record, 3)
 		if err != nil {
+			return err
 		}
 
-		risk, err := strconv.ParseFloat(row[1], 64)
+		age, err := csvLoader.Atoi(record, 0)
 		if err != nil {
+			return err
+		}
+
+		risk, err := csvLoader.ParseFloat64(record, 1)
+		if err != nil {
+			return err
 		}
 		model.DeathRisk[age] = risk
 
-		popProb, err := strconv.ParseFloat(row[2], 64)
+		popProb, err := csvLoader.ParseFloat64(record, 2)
 		if err != nil {
+			return err
 		}
 		cumulative += popProb * 4.4
 		model.CumulativeProb[age] = cumulative
 	}
-
+	return nil
 }

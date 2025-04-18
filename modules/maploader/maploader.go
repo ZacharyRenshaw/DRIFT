@@ -1,46 +1,72 @@
 package maploader
 
 import (
+	"drift/modules/csvutils"
 	"drift/types"
-	"encoding/csv"
 	"fmt"
-	"os"
-	"strconv"
 )
 
-func LoadMap(model *types.Model) {
-	minLat, minLon, maxLat, maxLon := 0, 0, 0, 0
+// A few healthy guardrails
+const minValidLat = -90
+const maxValidLat = 90
+const minValidLon = -180
+const maxValidLon = 180
 
+// Terrain types
+// TODO you might want to move this somewhere else
+type Terrain int
+
+const (
+	InvalidTerrainLow Terrain = iota // 0
+	Land                             // 1
+	CoastalWater                     // 2
+	OpenWater                        // 3
+	HighMountain                     // 4
+	Desert                           // 5
+	Ice                              // 6
+	InvalidTerrainHigh
+)
+
+// Load the map from a CSV file and populate the model's Map map.
+func LoadMap(model *types.Model, mapRoot string) error {
+	minLat, minLon, maxLat, maxLon := 0, 0, 0, 0
+	// Initialize the map if it's nil
 	if model.Map == nil {
 		model.Map = make(map[int]map[int]int)
 	}
 
-	filename := fmt.Sprintf("modules/maploader/%s_map.csv", model.MapName)
-	file, err := os.Open(filename)
-	if err != nil {
-		print("Cannot open ", filename)
+	// Derive the filename from the model and load the CSV file
+	filename := fmt.Sprintf("%s_map.csv", model.MapName)
+	csvLoader := csvutils.CSVLoader{
+		FileName:   filename,
+		Dir:        mapRoot,
+		MinRecords: 2,
 	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
-	records, err := reader.ReadAll()
+	records, err := csvLoader.LoadCSV()
 	if err != nil {
-		print("Error reading map file")
-		return
+		return err
 	}
 
-	// land = 1
-	// coastal water = 2
-	// open water = 3
-	// high mountain = 4
-	// desert = 5
-	// ice = 6
-
+	// Skip the header row and process each record
 	for _, record := range records[1:] {
-
-		lat, err := strconv.Atoi(record[0])
+		// Ensure the record has at least 3 fields
+		err := csvLoader.CheckRecord(record, 3)
 		if err != nil {
-			print("error reading map data at ", record)
+			return err
+		}
+
+		// Each record should have three fields: latitude, longitude, and terrain type
+		lat, err := csvLoader.Atoi(record, 0)
+		if err != nil {
+			return err
+		}
+		if lat < minValidLat || lat > maxValidLat {
+			return csvutils.ErrInvalidField{
+				CSVLoader: csvLoader,
+				Record:    record,
+				Field:     0,
+				Message:   "Latitude out of range",
+			}
 		}
 		if lat < minLat {
 			minLat = lat
@@ -49,9 +75,17 @@ func LoadMap(model *types.Model) {
 			maxLat = lat
 		}
 
-		lon, err := strconv.Atoi(record[1])
+		lon, err := csvLoader.Atoi(record, 1)
 		if err != nil {
-			print("error reading map data at ", record)
+			return err
+		}
+		if lon < minValidLon || lon > maxValidLon {
+			return csvutils.ErrInvalidField{
+				CSVLoader: csvLoader,
+				Record:    record,
+				Field:     1,
+				Message:   "Longitude out of range",
+			}
 		}
 		if lon < minLon {
 			minLon = lon
@@ -60,9 +94,19 @@ func LoadMap(model *types.Model) {
 			maxLon = lon
 		}
 
-		terrain, err := strconv.Atoi(record[2])
+		terrain, err := csvLoader.Atoi(record, 2)
 		if err != nil {
-			print("error reading map data at ", record)
+			return err
+		}
+		if terrain <= int(InvalidTerrainLow) || terrain >= int(InvalidTerrainHigh) {
+			return csvutils.ErrInvalidField{
+				CSVLoader: csvLoader,
+				Record:    record,
+				Field:     2,
+				Message: fmt.Sprintf("Terrain type out of range [%d, %d]",
+					InvalidTerrainLow+1,
+					InvalidTerrainHigh-1),
+			}
 		}
 
 		if model.Map[lat] == nil {
@@ -82,4 +126,5 @@ func LoadMap(model *types.Model) {
 	model.FreeParameters["tileWidth"] = width / lonRange
 	model.FreeParameters["tileHeight"] = height / latRange
 
+	return nil
 }
