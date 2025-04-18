@@ -11,7 +11,8 @@ import (
 	"math"
 )
 
-func InitializeModel() *types.Model {
+// Initializes the model based on the configuration files.
+func InitializeModel(configRoot string, mapRoot string) (*types.Model, error) {
 	model := &types.Model{
 		Parameters:     make(map[string]float64),
 		PlotFlags:      make(map[string]bool),
@@ -22,11 +23,23 @@ func InitializeModel() *types.Model {
 		Map:            make(map[int]map[int]int),
 	}
 
-	// Load files
-	paramloader.LoadParameters(model)
-	chromosomeloader.LoadChromosomeArmsFromCSV(model)
-	actuarialloader.LoadActuarialTable(model)
-	maploader.LoadMap(model)
+	// Attempt to load each config file. Failure will be fatal.
+	err := paramloader.LoadParameters(model, configRoot)
+	if err != nil {
+		return nil, err
+	}
+	err = chromosomeloader.LoadChromosomeArms(model, configRoot)
+	if err != nil {
+		return nil, err
+	}
+	err = actuarialloader.LoadActuarialTable(model, configRoot)
+	if err != nil {
+		return nil, err
+	}
+	err = maploader.LoadMap(model, mapRoot)
+	if err != nil {
+		return nil, err
+	}
 
 	// Calculate derived values
 	model.Parameters["mu_sig_figs"] = math.Pow(1, model.Parameters["mu_sig_figs"])
@@ -42,7 +55,7 @@ func InitializeModel() *types.Model {
 
 	//PrintModel(model)                       // For doublechecking purposes
 
-	return model
+	return model, nil
 }
 
 func PrintModel(model *types.Model) {

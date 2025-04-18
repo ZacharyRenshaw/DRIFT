@@ -1,41 +1,53 @@
 package chromosomeloader
 
 import (
+	"drift/modules/csvutils"
 	"drift/types"
-	"encoding/csv"
-	"os"
-	"strconv"
 )
 
-func LoadChromosomeArmsFromCSV(model *types.Model) {
+// Name of the CSV file containing the chromosome arms.
+const myFileName = "chromosome_data.csv"
 
-	file, err := os.Open("static/chromosome_data.csv")
-	if err != nil {
+// Load the chromosome arms from a CSV file and populate the model's ChromosomeArms map.
+func LoadChromosomeArms(model *types.Model, configRoot string) error {
+	// Load the CSV file
+	csvLoader := csvutils.CSVLoader{
+		FileName:   myFileName,
+		Dir:        configRoot,
+		MinRecords: 2,
 	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
-	records, err := reader.ReadAll()
+	records, err := csvLoader.LoadCSV()
 	if err != nil {
+		return err
 	}
 
+	// Skip the header row and process each record
 	var totallen int
-
 	for _, record := range records[1:] {
-		chromosome, err := strconv.Atoi(record[0])
+		// Ensure the record has at least 4 fields
+		err := csvLoader.CheckRecord(record, 4)
 		if err != nil {
+			return err
 		}
 
-		arm, err := strconv.Atoi(record[1])
+		chromosome, err := csvLoader.Atoi(record, 0)
 		if err != nil {
+			return err
 		}
 
-		start, err := strconv.Atoi(record[2])
+		arm, err := csvLoader.Atoi(record, 1)
 		if err != nil {
+			return err
 		}
 
-		length, err := strconv.Atoi(record[3])
+		start, err := csvLoader.Atoi(record, 2)
 		if err != nil {
+			return err
+		}
+
+		length, err := csvLoader.Atoi(record, 3)
+		if err != nil {
+			return err
 		}
 
 		if model.ChromosomeArms[chromosome] == nil {
@@ -51,4 +63,5 @@ func LoadChromosomeArmsFromCSV(model *types.Model) {
 
 	model.FreeParameters["numbits"] = totallen
 
+	return nil
 }
